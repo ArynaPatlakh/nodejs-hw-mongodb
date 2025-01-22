@@ -24,11 +24,12 @@ const setupServer = () => {
     });
   });
 
-  app.get('/Contacts/', async (req, res) => {
+  app.get('/contacts', async (req, res) => {
     try {
+
       const contacts = await contactsCollection.find();
       console.log(contacts);
-      // res.json(contacts);
+   
       res.status(200).json({
         status: 200,
         message: 'Successfully found all contacts!',

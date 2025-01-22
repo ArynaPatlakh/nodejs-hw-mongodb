@@ -3,7 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import pino from 'pino-http';
 import { getEnvVar } from './utils/getEnvVar.js';
-import { contactsCollection } from './db/models/contacts.js';
+import { findContactById, getAllContacts } from './serverces/contact.js';
 
 const PORT = Number(getEnvVar('PORT', 3000));
 
@@ -24,16 +24,39 @@ const setupServer = () => {
     });
   });
 
-  app.get('/contacts', async (req, res) => {
+  app.get('/contacts', async (req, res, next) => {
     try {
-
-      const contacts = await contactsCollection.find();
-      console.log(contacts);
-   
+      const contacts = await getAllContacts();
+      console.log(`Contact from DB: ${contacts}`);
       res.status(200).json({
         status: 200,
         message: 'Successfully found all contacts!',
         data: contacts,
+      });
+      next();
+    } catch (err) {
+      res.status(500).json({
+        status: 500,
+        message: 'Failed to fetch contacts',
+        error: err.message,
+      });
+    }
+  });
+
+  app.get('/contacts/:contactId', async (req, res) => {
+    try {
+      const { contactId } = req.params;
+      const contact = await findContactById(contactId);
+
+      if (!contact) {
+        res.status(400).json({
+          message: 'Contact not found',
+        });
+      }
+      res.status(200).json({
+        status: 200,
+        message: `Successfully found contact with id ${contactId}!`,
+        data: contact,
       });
     } catch (err) {
       res.status(500).json({

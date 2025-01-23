@@ -49,7 +49,7 @@ const setupServer = () => {
       const contact = await findContactById(contactId);
 
       if (!contact) {
-        res.status(400).json({
+       return res.status(400).json({
           message: 'Contact not found',
         });
       }

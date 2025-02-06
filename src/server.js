@@ -1,5 +1,5 @@
 // src/server.js
-import express from 'express';
+import express, { application, json } from 'express';
 import cors from 'cors';
 import pino from 'pino-http';
 import { getEnvVar } from './utils/getEnvVar.js';
@@ -12,6 +12,11 @@ const PORT = Number(getEnvVar('PORT', 3000));
 const setupServer = () => {
   const app = express();
   app.use(cors());
+  app.use(
+    json({
+      type: ['application/json', 'application.vnd.api+json'],
+    }),
+  );
   app.use(
     pino({
       transport: {
@@ -31,7 +36,7 @@ const setupServer = () => {
   app.use('*', notFound);
 
   app.use(errorHandler);
-  
+
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });

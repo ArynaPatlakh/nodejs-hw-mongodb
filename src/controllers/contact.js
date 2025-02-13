@@ -1,4 +1,5 @@
 import { contactsCollection } from '../db/models/contacts.js';
+import { errorHandler } from '../middlewares/errorHandler.js';
 import {
   getAllContacts,
   findContactById,
@@ -36,7 +37,8 @@ export const getContactById = async (req, res) => {
 export const createNewContact = async (req, res) => {
   const {name, phoneNumber, contactType} = await createContact(req.body);
   if (!name || !phoneNumber || !contactType) {
-    return res.status(400).json({ message: 'Name,phoneNumber and contactType are required' });
+    throw createHttpError(400, "Name,phoneNumber and contactType are required");
+    // return res.status(400).json({ message: 'Name,phoneNumber and contactType are required' });
   }
   const newContact = new contactsCollection({name, phoneNumber, contactType});
   await newContact.save();
@@ -49,16 +51,17 @@ export const createNewContact = async (req, res) => {
 };
 
 export const patchContactController = async (req, res, next) => {
-  const { studentId } = req.params;
+  const { contactId } = req.params;
   console.log(req.body);
-  const result = await updateContact(studentId, req.body);
+  const result = await updateContact(contactId, req.body);
 
   if (!result) {
-    next(createHttpError(404, 'Contact not found'));
-    return;
+    throw createHttpError(404, `Contact with id ${contactId} was not found`);
+    // next(createHttpError(404, 'Contact not found'));
+    // return;
   }
 
-  res.json({
+  res.status(200).json({
     status: 200,
     massage: 'Successfully patched a contact!',
     data: result.contact,
@@ -71,8 +74,9 @@ export const deleteContactbyId = async (req, res, next) => {
   const contact = await deleteContact(contactId);
 
   if (!contact) {
-    next(createHttpError(404, 'Contact not found'));
-    return;
+    throw createHttpError(400, "Contact not found");
+    // next(createHttpError(404, 'Contact not found'));
+    // return;
   }
 
   res.status(204).send();

@@ -31,8 +31,7 @@ export const deleteContact = async (contactId) => {
   return contact;
 };
 
-
-export const createContact = async(payload) => {
+export const createContact = async (payload) => {
   const contact = await contactsCollection.create(payload);
   return contact;
 };

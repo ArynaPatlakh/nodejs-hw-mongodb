@@ -1,5 +1,5 @@
 // src/server.js
-import express, { application, json } from 'express';
+import express, { json } from 'express';
 import cors from 'cors';
 import pino from 'pino-http';
 import { getEnvVar } from './utils/getEnvVar.js';

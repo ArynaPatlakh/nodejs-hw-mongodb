@@ -7,6 +7,7 @@ import {
   createContact,
 } from '../serverces/contact.js';
 import createHttpError from 'http-errors';
+import { createContactSchema, updateCotactSchame } from '../validation/contacts.js';
 
 export const getContacts = async (req, res, next) => {
   const contacts = await getAllContacts();
@@ -35,11 +36,12 @@ export const getContactById = async (req, res) => {
 
 export const createNewContact = async (req, res) => {
   const { name, phoneNumber, contactType } = await createContact(req.body);
-  if (!name || !phoneNumber || !contactType) {
-    throw createHttpError(400, 'Name,phoneNumber and contactType are required');
-    // return res.status(400).json({ message: 'Name,phoneNumber and contactType are required' });
-  }
+
   const newContact = new contactsCollection({ name, phoneNumber, contactType });
+  const validateResults = createContactSchema.validate(newContact);
+  if (validateResults.error) {
+    throw createHttpError(400, `${validateResults.error.message}`);
+  }
   await newContact.save();
 
   res.status(201).json({
@@ -53,13 +55,14 @@ export const patchContactController = async (req, res, next) => {
   const { contactId } = req.params;
   console.log(req.body);
   const result = await updateContact(contactId, req.body);
-
+  const validateResults = updateCotactSchame.validate(result);
+  if (validateResults.error) {
+    throw createHttpError(400, `${validateResults.error.message}`);
+  }
   if (!result) {
     throw createHttpError(404, `Contact with id ${contactId} was not found`);
-    // next(createHttpError(404, 'Contact not found'));
-    // return;
   }
-
+ 
   res.status(200).json({
     status: 200,
     massage: 'Successfully patched a contact!',
@@ -74,8 +77,6 @@ export const deleteContactbyId = async (req, res, next) => {
 
   if (!contact) {
     throw createHttpError(400, 'Contact not found');
-    // next(createHttpError(404, 'Contact not found'));
-    // return;
   }
 
   res.status(204).send();

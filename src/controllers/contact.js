@@ -7,11 +7,19 @@ import {
   createContact,
 } from '../serverces/contact.js';
 import createHttpError from 'http-errors';
-import { createContactSchema, updateCotactSchame } from '../validation/contacts.js';
+import {
+  createContactSchema,
+  updateCotactSchame,
+} from '../validation/contacts.js';
+import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 
 export const getContacts = async (req, res, next) => {
-  const contacts = await getAllContacts();
-  //   console.log(`Contact from DB: ${contacts}`);
+  const { page, perPage } = parsePaginationParams(req.query);
+  const contacts = await getAllContacts({
+    page,
+    perPage,
+  });
+
   res.status(200).json({
     status: 200,
     message: 'Successfully found all contacts!',
@@ -62,7 +70,7 @@ export const patchContactController = async (req, res, next) => {
   if (!result) {
     throw createHttpError(404, `Contact with id ${contactId} was not found`);
   }
- 
+
   res.status(200).json({
     status: 200,
     massage: 'Successfully patched a contact!',

@@ -26,10 +26,13 @@ export const getAllContacts = async ({
   const paginationData = calculatePaginationData(contactsCount, perPage, page);
   return { data: contacts, ...paginationData };
 };
+
 export const findContactById = async (contactId) => {
+  console.log("I am in serveses");
   const contact = await contactsCollection.findById(contactId);
   return contact;
 };
+
 export const updateContact = async (contactId, playload, options = {}) => {
   const rawResults = await contactsCollection.findOneAndUpdate(
     { _id: contactId },
@@ -40,7 +43,7 @@ export const updateContact = async (contactId, playload, options = {}) => {
   if (!rawResults || !rawResults.value) return null;
 
   return {
-    student: rawResults.value,
+    contact: rawResults.value,
     isNew: Boolean(rawResults?.lastErrorObject?.upserted),
   };
 };

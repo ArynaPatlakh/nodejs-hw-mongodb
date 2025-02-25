@@ -14,6 +14,7 @@ import {
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 
+
 export const getContacts = async (req, res, next) => {
   const { page, perPage } = parsePaginationParams(req.query);
   const { sortBy, sortOrder } = parseSortParams(req.query);
@@ -79,7 +80,7 @@ export const patchContactController = async (req, res, next) => {
   res.status(200).json({
     status: 200,
     massage: 'Successfully patched a contact!',
-    data: result.student,
+    data: result.contact,
   });
 };
 

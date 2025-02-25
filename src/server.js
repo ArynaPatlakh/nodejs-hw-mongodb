@@ -3,14 +3,18 @@ import express, { json } from 'express';
 import cors from 'cors';
 import pino from 'pino-http';
 import { getEnvVar } from './utils/getEnvVar.js';
-import contactsRoutes from './routers/contacs.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFound } from './middlewares/notFoundHandler.js';
+import cookieParser from 'cookie-parser';
+import router from './routers/index.js';
 
 const PORT = Number(getEnvVar('PORT', 3000));
 
 const setupServer = () => {
   const app = express();
+
+  app.use(cookieParser());
+  
   app.use(cors());
   app.use(
     json({
@@ -31,7 +35,7 @@ const setupServer = () => {
     });
   });
 
-  app.use(contactsRoutes);
+  app.use(router);
 
   app.use('*', notFound);
 

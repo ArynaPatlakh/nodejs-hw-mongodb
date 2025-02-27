@@ -1,7 +1,6 @@
 import createHttpError from 'http-errors';
-import { loginUser } from '../serverces/auth.js';
+import { loginUser, logoutUser, refreshUsersSession, registerUser} from '../serverces/auth.js';
 import { ONE_MOUNTH } from '../constants/index.js';
-import { registerUser } from '../serverces/auth.js';
 
 export const loginController = async (req, res) => {
   const { email, password } = req.body;
@@ -39,4 +38,44 @@ export const registerUserController = async (req, res) => {
     message: 'Successfully registered a user!',
     data: user,
   });
+};
+
+const setupSession = (res, session) => {
+  res.cookie('refreshToken', session.refreshToken, {
+    httpOnly: true,
+    expires: new Date(Date.now() + ONE_MOUNTH),
+  });
+  res.cookie('sessionId', session._id, {
+    httpOnly: true,
+    expires: new Date(Date.now() + ONE_MOUNTH),
+  });
+};
+
+export const refreshTokenControllers = async (req, res) => {
+  const session = await refreshUsersSession({
+    sessionId: req.cookies.sessionId,
+    refreshToken: req.cookies.refreshToken,
+  });
+
+  setupSession(res, session);
+
+  res.json({
+    status: 200,
+    message: 'Successfully refreshed a session!',
+    data: {
+      accessToken: session.accessToken,
+    },
+  });
+};
+
+export const logoutUeserController = async (req, res) => {
+  console.log(req.cookies.sessionId);
+  if (req.cookies.sessionId) {
+    await logoutUser(req.cookies.sessionId);
+  }
+
+  res.clearCookie('sessionId');
+  res.clearCookie('refreshToken');
+
+  res.status(204).send();
 };

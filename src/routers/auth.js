@@ -3,26 +3,29 @@
 import { Router } from 'express';
 import {
   loginController,
+  logoutUeserController,
+  refreshTokenControllers,
   registerUserController,
 } from '../controllers/auth.js';
 import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 import { loginUserSchema, registerUserSchema } from '../validation/auth.js';
 import { validationBody } from '../middlewares/validation.js';
 
-const router = Router();
+const authRouter = Router();
 
-// Роут для реєстрації
-router.post(
-  '/register', 
+authRouter.post(
+  '/register',
   validationBody(registerUserSchema),
   ctrlWrapper(registerUserController),
 );
 
-
-router.post(
-  '/login', 
+authRouter.post(
+  '/login',
   validationBody(loginUserSchema),
   ctrlWrapper(loginController),
 );
 
-export default router;
+authRouter.post('/refresh', ctrlWrapper(refreshTokenControllers));
+authRouter.post('/logout', ctrlWrapper(logoutUeserController));
+
+export default authRouter;

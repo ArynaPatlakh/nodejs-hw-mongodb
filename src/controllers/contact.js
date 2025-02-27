@@ -1,4 +1,4 @@
-import { contactsCollection } from '../db/models/contacts.js';
+// import { contactsCollection } from '../db/models/contacts.js';
 import {
   getAllContacts,
   findContactById,
@@ -14,17 +14,19 @@ import {
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 
-
 export const getContacts = async (req, res, next) => {
   const { page, perPage } = parsePaginationParams(req.query);
   const { sortBy, sortOrder } = parseSortParams(req.query);
 
-  const contacts = await getAllContacts({
-    page,
-    perPage,
-    sortBy,
-    sortOrder,
-  });
+  const contacts = await getAllContacts(
+    {
+      page,
+      perPage,
+      sortBy,
+      sortOrder,
+    },
+    req.user._id,
+  );
 
   res.status(200).json({
     status: 200,
@@ -35,7 +37,10 @@ export const getContacts = async (req, res, next) => {
 
 export const getContactById = async (req, res) => {
   const { contactId } = req.params;
-  const contact = await findContactById(contactId);
+  if (!req.user || !req.user._id) {
+    throw createHttpError(401, 'Unauthorized');
+  }
+  const contact = await findContactById(req.user._id, contactId);
 
   if (!contact) {
     throw createHttpError(400, 'Contact not found!');
@@ -49,13 +54,20 @@ export const getContactById = async (req, res) => {
 };
 
 export const createNewContact = async (req, res) => {
-  const { name, phoneNumber, contactType } = await createContact(req.body);
+  const { name, phoneNumber, contactType } = req.body;
+  console.log(req.body);
+  // const { name, phoneNumber, contactType } = await createContact(req.user._id, req.body);
+  if (!req.user || !req.user._id) {
+    throw createHttpError(401, 'Unauthorized');
+  }
+  const newContact = await createContact(req.user._id, { name, phoneNumber, contactType });
+  // const newContact = new contactsCollection({ name, phoneNumber, contactType });
 
-  const newContact = new contactsCollection({ name, phoneNumber, contactType });
   const validateResults = createContactSchema.validate(newContact);
   if (validateResults.error) {
     throw createHttpError(400, `${validateResults.error.message}`);
   }
+
   await newContact.save();
 
   res.status(201).json({
@@ -67,8 +79,11 @@ export const createNewContact = async (req, res) => {
 
 export const patchContactController = async (req, res, next) => {
   const { contactId } = req.params;
+  if (!req.user || !req.user._id) {
+    throw createHttpError(401, 'Unauthorized');
+  }
   console.log(req.body);
-  const result = await updateContact(contactId, req.body);
+  const result = await updateContact(req.user._id, contactId, req.body);
   const validateResults = updateCotactSchame.validate(result);
   if (validateResults.error) {
     throw createHttpError(400, `${validateResults.error.message}`);
@@ -86,8 +101,11 @@ export const patchContactController = async (req, res, next) => {
 
 export const deleteContactbyId = async (req, res, next) => {
   const { contactId } = req.params;
+  if (!req.user || !req.user._id) {
+    throw createHttpError(401, 'Unauthorized');
+  }
 
-  const contact = await deleteContact(contactId);
+  const contact = await deleteContact(req.user._id, contactId);
 
   if (!contact) {
     throw createHttpError(400, 'Contact not found');

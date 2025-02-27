@@ -1,19 +1,17 @@
 import { contactsCollection } from '../db/models/contacts.js';
 import { calculatePaginationData } from '../utils/calculatePaginationData.js';
 import { SORT_ORDER } from '../constants/index.js';
-export const getAllContacts = async ({
-  page,
-  perPage,
-  sortOrder = SORT_ORDER.ASC,
-  sortBy = '_id',
-}) => {
+export const getAllContacts = async (
+  { page, perPage, sortOrder = SORT_ORDER.ASC, sortBy = '_id' },
+  userId,
+) => {
   const limit = perPage;
   const skip = (page - 1) * perPage;
 
-  const contactsQuery = contactsCollection.find();
+  const contactsQuery = contactsCollection.find({ userId });
 
   const contactsCount = await contactsCollection
-    .find()
+    .find({ userId })
     .merge(contactsQuery)
     .countDocuments();
 
@@ -27,15 +25,20 @@ export const getAllContacts = async ({
   return { data: contacts, ...paginationData };
 };
 
-export const findContactById = async (contactId) => {
-  console.log("I am in serveses");
-  const contact = await contactsCollection.findById(contactId);
+export const findContactById = async (userId, contactId) => {
+  console.log('I am in serveses');
+  const contact = await contactsCollection.findOne({ _id: contactId, userId });
   return contact;
 };
 
-export const updateContact = async (contactId, playload, options = {}) => {
+export const updateContact = async (
+  userId,
+  contactId,
+  playload,
+  options = {},
+) => {
   const rawResults = await contactsCollection.findOneAndUpdate(
-    { _id: contactId },
+    { _id: contactId, userId },
     playload,
     { new: true, includeResultMetadata: true, ...options },
   );
@@ -48,14 +51,20 @@ export const updateContact = async (contactId, playload, options = {}) => {
   };
 };
 
-export const deleteContact = async (contactId) => {
+export const deleteContact = async (contactId, userId) => {
   const contact = await contactsCollection.findOneAndDelete({
     _id: contactId,
+    userId,
   });
   return contact;
 };
 
-export const createContact = async (payload) => {
-  const contact = await contactsCollection.create(payload);
+export const createContact = async (userId, { name, phoneNumber, email }) => {
+  const contact = await contactsCollection.create({
+    name,
+    email,
+    phoneNumber,
+    userId,
+  });
   return contact;
 };

@@ -6,27 +6,20 @@ import { FIFTEEN_MINUTES, ONE_MOUNTH } from '../constants/index.js';
 import { SessionCollection } from '../db/models/session.js';
 
 export const registerUser = async (payload) => {
-  const { email, password, name } = payload;
-
-  if (!email || !password || !name) {
-    throw new Error('Missing required fields: name, email, or password');
+  const user = await UserCollection.findOne({ email: payload.email });
+  if (user) {
+    throw createHttpError(409, 'email in use');
   }
 
-  const trimmedEmail = email.trim();
-  const trimmedName = name.trim();
-
-  const existingUser = await UserCollection.findOne({ email: trimmedEmail });
-  if (existingUser) {
-    throw new Error('User with this email already exists');
-  }
-
-  const encryptedPassword = await bcrypt.hash(password, 10);
-
-  return await UserCollection.create({
-    name: trimmedName,
-    email: trimmedEmail,
+  const encryptedPassword = await bcrypt.hash(payload.password, 10);
+  const newUser = await UserCollection.create({
+    ...payload,
     password: encryptedPassword,
   });
+
+  const { password, ...userData } = newUser.toObject();
+
+  return userData;
 };
 
 export const loginUser = async (plauload) => {

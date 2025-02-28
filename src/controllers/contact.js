@@ -60,7 +60,11 @@ export const createNewContact = async (req, res) => {
   if (!req.user || !req.user._id) {
     throw createHttpError(401, 'Unauthorized');
   }
-  const newContact = await createContact(req.user._id, { name, phoneNumber, contactType });
+  const newContact = await createContact(req.user._id, {
+    name,
+    phoneNumber,
+    contactType,
+  });
   // const newContact = new contactsCollection({ name, phoneNumber, contactType });
 
   const validateResults = createContactSchema.validate(newContact);
@@ -105,7 +109,7 @@ export const deleteContactbyId = async (req, res, next) => {
     throw createHttpError(401, 'Unauthorized');
   }
 
-  const contact = await deleteContact(req.user._id, contactId);
+  const contact = await deleteContact(contactId, req.user._id);
 
   if (!contact) {
     throw createHttpError(400, 'Contact not found');

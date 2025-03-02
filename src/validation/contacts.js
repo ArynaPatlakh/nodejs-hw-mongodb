@@ -26,6 +26,7 @@ export const createContactSchema = Joi.object({
       'string.base': 'Contact Type should be a string',
       'any.required': 'Contact Type is required',
     }),
+    photo: Joi.string(),
 }).unknown(true);
 
 export const updateCotactSchame = Joi.object({

@@ -48,5 +48,5 @@ export const updateCotactSchame = Joi.object({
   isFavourite: Joi.boolean(),
   contactType: Joi.string().valid('work', 'home', 'personal').messages({
     'string.base': 'Contact Type should be a string',
-  }),
+  }), photo : Joi.string(),
 }).unknown(true);

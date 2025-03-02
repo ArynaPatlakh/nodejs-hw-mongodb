@@ -40,12 +40,13 @@ export const updateContact = async (
 ) => {
   const rawResults = await contactsCollection.findOneAndUpdate(
     { _id: contactId, userId },
-    playload,
+    { $set: playload },
     { new: true, includeResultMetadata: true, ...options },
   );
 
   if (!rawResults || !rawResults.value) return null;
 
+  
   return {
     contact: rawResults.value,
     isNew: Boolean(rawResults?.lastErrorObject?.upserted),

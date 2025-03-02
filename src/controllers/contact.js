@@ -87,13 +87,11 @@ export const createNewContact = async (req, res) => {
   }
 
   console.log('✅ Валидация прошла, создаем контакт...');
-  const savedContact = await createContact( newContact);
+  const savedContact = await createContact(newContact);
 
   await savedContact.save();
 
-      
   console.log('✅ Контакт создан:', savedContact);
-
 
   res.status(201).json({
     status: 201,

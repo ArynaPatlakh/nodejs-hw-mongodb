@@ -13,7 +13,7 @@ tags:
     description: Auth operations.
 servers:
   - url: http://localhost:3000
-  - url: https://example.com/api/v1
+  - url: https://nodejs-hw-mongodb-o1b7.onrender.com
 paths:
   /contacts:
     get:
@@ -25,6 +25,8 @@ paths:
       $ref: ../swagger/paths/contacts/{id}/get.yaml
     delete:
       $ref: ../swagger/paths/contacts/{id}/delete.yaml
+    patch:
+      $ref: ../swagger/paths/contacts/{id}/patch.yaml
 
 components:
   securitySchemes:

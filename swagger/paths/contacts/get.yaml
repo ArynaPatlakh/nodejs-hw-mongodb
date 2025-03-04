@@ -24,6 +24,11 @@ parameters:
       type: string
       enum: ['asc', 'desc']
       example: 'asc'
+  - in: query
+    name: sortBy
+    schema:
+      type: string
+      example: 'isFavorite'
 responses:
   '200':
     description: Successfully found contacts!
@@ -77,4 +82,3 @@ responses:
                   example: true
   '401':
     $ref: '../../components/responses/401.yaml'
-
